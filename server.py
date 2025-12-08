@@ -1,18 +1,37 @@
 import socket
 
 host = socket.gethostbyname(socket.gethostname())
-print("Server bude na IP", host)
+print(f"Server IP: {host}")
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 5678
 s.bind((host, port))
-clients = set()
-print("Server bezi na porte", port)
 
-while True:
-    data, addr = s.recvfrom(1024)
-    clients.add(addr)
-    data = data.decode("utf-8")
-    print(str(addr)+data)
-    for c in clients:
-        if c != addr:
-            s.sendto(data.encode("utf-8"), c)
+s.listen(1)
+print(f"Waiting for client on port {port}...")
+
+conn, addr = s.accept()
+print(f"Client connected from {addr}")
+
+try:
+    while True:
+        my_message = input("[Server] You: ")
+        conn.sendall(my_message.encode("utf-8"))
+
+        if my_message.lower() == "exit":
+            break
+
+        print("Waiting for client response...")
+
+        data = conn.recv(1024)
+        if not data:
+            print("Client disconnected.")
+            break
+
+        print(f"[Client]: {data.decode('utf-8')}")
+
+except KeyboardInterrupt:
+    print("\nClosing connection...")
+finally:
+    conn.close()
+    s.close()

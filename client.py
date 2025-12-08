@@ -1,22 +1,34 @@
-import socket, random
-import threading
-def receiveData(sock):
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server_ip = input("Enter Server IP: ")
+port = 5678
+
+try:
+    s.connect((server_ip, port))
+    print("Connected! Waiting for server to start the chat...")
+
     while True:
-        try:
-            data, addr = sock.recvfrom(1024)
-            print(data.decode("utf-8"))
-        except:
-            pass
+        data = s.recv(1024)
+        if not data:
+            print("Server disconnected.")
+            break
 
-serverIP = input("zadaj IP serevra: ")
-server = (str(serverIP), 5678)
+        server_msg = data.decode("utf-8")
+        print(f"[Server]: {server_msg}")
 
-host = socket.gethostbyname(socket.gethostname())
-port = random.randint(6000, 10000)
-print("client IP " + str(host) + " port " + str(port))
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind((host, port))
-name = input("zadaj svoj nick: ")
-while True:
-    data = '['+name+']: ' + input()
-    s.sendto(data.encode("utf-8"), server)
+        if server_msg.lower() == "exit":
+            print("Server ended the chat.")
+            break
+
+        my_message = input("[Client] You: ")
+        s.sendall(my_message.encode("utf-8"))
+
+        if my_message.lower() == "exit":
+            break
+
+except ConnectionRefusedError:
+    print("Could not connect. Check IP and run server first.")
+finally:
+    s.close()

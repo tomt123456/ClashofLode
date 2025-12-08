@@ -15,8 +15,8 @@ BUTTON_COLOR = (50, 150, 255)
 BUTTON_HOVER = (80, 180, 255)
 
 # --- Global Network Variables ---
-sock = None  # Will hold either server or client socket
-conn = None  # Only used if Host (to hold client connection)
+sock = None
+conn = None
 is_host = False
 connected = False
 running = True
@@ -25,7 +25,6 @@ running = True
 # --- Network Functions ---
 
 def start_host():
-    """Initializes Server Logic"""
     global sock, conn, connected, is_host
     is_host = True
 
@@ -54,7 +53,6 @@ def start_host():
 
 
 def start_client(target_ip):
-    """Initializes Client Logic"""
     global sock, connected, is_host
     is_host = False
 
@@ -73,7 +71,6 @@ def start_client(target_ip):
 
 
 def listen_for_data(socket_obj):
-    """Generic listener for both Host and Client"""
     global running
     while running:
         try:
@@ -85,7 +82,6 @@ def listen_for_data(socket_obj):
 
 
 # --- GUI Components ---
-
 class Button:
     def __init__(self, x, y, w, h, text):
         self.rect = pygame.Rect(x, y, w, h)
@@ -107,7 +103,6 @@ class Button:
 
 
 # --- Main Application ---
-
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Network Game")

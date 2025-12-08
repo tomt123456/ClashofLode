@@ -11,7 +11,7 @@ s.listen(1)
 print(f"Waiting for client on port {port}...")
 
 conn, addr = s.accept()
-print(f"Client connected from {addr}")
+print(f"Client connected: {addr}")
 
 try:
     while True:
@@ -20,8 +20,6 @@ try:
 
         if my_message.lower() == "exit":
             break
-
-        print("Waiting for client response...")
 
         data = conn.recv(1024)
         if not data:

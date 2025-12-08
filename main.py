@@ -240,6 +240,7 @@ while running:
     pygame.display.flip()
     clock.tick(60)
 
+
 # Cleanup
 if sock: sock.close()
 if conn: conn.close()

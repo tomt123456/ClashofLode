@@ -1,40 +1,65 @@
 import socket
-import pygame as pg
+import threading
+import pygame
+import sys
 
-
-
+# --- Network Configuration ---
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_ip = input("Zadajte Server IP: ")
+
+server_ip = input("Enter Server IP: ")
 port = 5678
 
-pg.init()
-clock = pg.time.Clock()
-screen = pg.display.set_mode((1280, 720))
-pg.display.set_caption("Clash of Loďe")
-
 try:
-    clock.tick(60)
     s.connect((server_ip, port))
-    print("Pripojené")
-    while True:
-        data = s.recv(1024)
-        if not data:
-            print("Server odpojený.")
-            break
-        server_msg = data.decode("utf-8")
-        print(f"[Server]: {server_msg}")
-        if server_msg.lower() == "exit":
-            print("Server ukončil chat.")
-            break
-        my_message = input("[Client] You: ")
-        s.sendall(my_message.encode("utf-8"))
-        if my_message.lower() == "exit":
+    print("Connected to server!")
+except Exception as e:
+    print(f"Could not connect: {e}")
+    sys.exit()
+
+running = True
+
+
+# --- Network Thread Function ---
+def receive_data():
+    global running
+    while running:
+        try:
+            data = s.recv(1024).decode("utf-8")
+            if not data:
+                break
+
+            # Placeholder for handling received data
+            print(f"Received: {data}")
+        except:
             break
 
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                run = False
-except ConnectionRefusedError:
-    print("Nepodarilo sa pripojiť na server.")
-finally:
-    s.close()
+
+# Start the listener thread
+thread = threading.Thread(target=receive_data)
+thread.daemon = True
+thread.start()
+
+# --- Pygame Setup ---
+pygame.init()
+screen = pygame.display.set_mode((500, 500))
+pygame.display.set_caption("Client (Blank)")
+clock = pygame.time.Clock()
+
+# --- Game Loop ---
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Send data example:
+    # s.sendall("Hello from client".encode("utf-8"))
+
+    # Drawing
+    screen.fill((0, 0, 0))  # Black background
+
+    pygame.display.flip()
+    clock.tick(60)
+
+s.close()
+pygame.quit()
+sys.exit()

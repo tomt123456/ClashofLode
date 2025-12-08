@@ -1,48 +1,63 @@
 import socket
-import pygame as pg
+import threading
+import pygame
+import sys
 
+# --- Network Configuration ---
+host = socket.gethostbyname(socket.gethostname())
+print(f"Server IP: {host}")
+port = 5678
 
-# initialize pygame
-pg.init()
-clock = pg.time.Clock()
-screen = pg.display.set_mode((1280, 720))
-pg.display.set_caption("Clash of Loďe")
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((host, port))
+server_socket.listen(1)
+
+print("Waiting for client to connect...")
+conn, addr = server_socket.accept()
+print(f"Connected to {addr}")
 
 running = True
 
 
-host = socket.gethostbyname(socket.gethostname())
-print(f"Server IP: {host}")
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-port = 5678
-s.bind((host, port))
-s.listen(1)
-print(f"Waiting for client on port {port}...")
-conn, addr = s.accept()
-print(f"Client connected: {addr}")
-
-try:
-    clock.tick(60)
+# --- Network Thread Function ---
+def receive_data():
+    global running
     while running:
-        my_message = input("[Server] You: ")
-        conn.sendall(my_message.encode("utf-8"))
+        try:
+            data = conn.recv(1024).decode("utf-8")
+            if not data:
+                break
 
-        if my_message.lower() == "exit":
+            # Placeholder for handling received data
+            print(f"Received: {data}")
+        except:
             break
 
-        data = conn.recv(1024)
-        if not data:
-            print("Client disconnected.")
-            break
 
-        print(f"[Client]: {data.decode('utf-8')}")
+# Start the listener thread
+thread = threading.Thread(target=receive_data)
+thread.daemon = True
+thread.start()
 
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                run = False
+# --- Pygame Setup ---
+pygame.init()
+screen = pygame.display.set_mode((500, 500))
+pygame.display.set_caption("Server (Blank)")
+clock = pygame.time.Clock()
 
-except KeyboardInterrupt:
-    print("\nClosing connection...")
-finally:
-    conn.close()
-    s.close()
+# --- Game Loop ---
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Drawing
+    screen.fill((0, 0, 0))  # Black background
+
+    pygame.display.flip()
+    clock.tick(60)
+
+conn.close()
+server_socket.close()
+pygame.quit()
+sys.exit()

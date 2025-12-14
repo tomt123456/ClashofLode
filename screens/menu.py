@@ -1,9 +1,7 @@
 import pygame
 from screens.base import ScreenBase
 from ui import Button
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+from ui import Palette as c
 
 
 class MenuScreen(ScreenBase):
@@ -26,8 +24,8 @@ class MenuScreen(ScreenBase):
         self.btn_join.check_hover(mouse_pos)
 
     def draw(self, surface):
-        surface.fill(BLACK)
-        title = self.app.title_font.render("Select Mode", True, WHITE)
+        surface.fill(c.C2)
+        title = self.app.title_font.render("Select Mode", True, c.C8)
         surface.blit(title, (self.app.WIDTH // 2 - title.get_width() // 2, 100))
         self.btn_host.draw(surface, self.app.font)
         self.btn_join.draw(surface, self.app.font)

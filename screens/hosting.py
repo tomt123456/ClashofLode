@@ -1,7 +1,5 @@
 from screens.base import ScreenBase
-
-GREEN = (0, 100, 0)
-WHITE = (255, 255, 255)
+from ui import Palette as c
 
 
 class HostingScreen(ScreenBase):
@@ -14,8 +12,8 @@ class HostingScreen(ScreenBase):
             self.app.set_screen("game")
 
     def draw(self, surface):
-        surface.fill(GREEN)
-        msg1 = self.app.font.render("Waiting for player...", True, WHITE)
-        msg2 = self.app.font.render(f"Your IP: {self.host_ip_display}", True, WHITE)
+        surface.fill(c.C2)
+        msg1 = self.app.font.render("Waiting for player...", True, c.C8)
+        msg2 = self.app.font.render(f"Your IP: {self.host_ip_display}", True, c.C8)
         surface.blit(msg1, (50, 150))
         surface.blit(msg2, (50, 200))

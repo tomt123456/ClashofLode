@@ -1,10 +1,6 @@
 import pygame
 from screens.base import ScreenBase
-
-GRAY = (100, 100, 100)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BUTTON_HOVER = (80, 180, 255)
+from ui import Palette as c
 
 
 class JoiningScreen(ScreenBase):
@@ -35,15 +31,15 @@ class JoiningScreen(ScreenBase):
             self.app.set_screen("game")
 
     def draw(self, surface):
-        surface.fill(GRAY)
+        surface.fill(c.C2)
 
-        label = self.app.font.render("Enter Host IP:", True, WHITE)
+        label = self.app.font.render("Enter Host IP:", True, c.C8)
         surface.blit(label, (200, 120))
 
-        color = BUTTON_HOVER if self.input_active else BLACK
+        color = c.C5 if self.input_active else c.C4
         pygame.draw.rect(surface, color, self.input_rect, 2)
 
-        text_surf = self.app.font.render(self.user_ip, True, WHITE)
+        text_surf = self.app.font.render(self.user_ip, True, c.C8)
         surface.blit(text_surf, (self.input_rect.x + 5, self.input_rect.y + 5))
 
         if self.connection_status:

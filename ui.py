@@ -1,9 +1,5 @@
 import pygame
 
-WHITE = (255, 255, 255)
-BUTTON_COLOR = (50, 150, 255)
-BUTTON_HOVER = (80, 180, 255)
-
 
 class Button:
     def __init__(self, x, y, w, h, text):
@@ -12,9 +8,9 @@ class Button:
         self.is_hovered = False
 
     def draw(self, screen, font):
-        color = BUTTON_HOVER if self.is_hovered else BUTTON_COLOR
+        color = Palette.C3 if self.is_hovered else Palette.C4
         pygame.draw.rect(screen, color, self.rect, border_radius=5)
-        text_surf = font.render(self.text, True, WHITE)
+        text_surf = font.render(self.text, True, Palette.C8)
         text_rect = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, text_rect)
 
@@ -23,3 +19,13 @@ class Button:
 
     def is_clicked(self, event):
         return self.is_hovered and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+
+class Palette:
+    C1 = (0, 0, 0)  # Black
+    C2 = (22, 25, 37)  # Shadow Gray
+    C3 = (28, 37, 65)  # Space Indigo
+    C4 = (64, 110, 142)  # Rich Cerulean
+    C5 = (0,126,167) # Cerulean
+    C6 = (180,197,228) # Powder Blue
+    C7 = (204, 219, 220)  # Alabaster Grey
+    C8 = (255,255,255) # White

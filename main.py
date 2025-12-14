@@ -8,8 +8,8 @@ from screens.joining import JoiningScreen
 from screens.game import GameScreen
 
 # --- Constants & Config ---
-WIDTH, HEIGHT = 600, 400
-
+WIDTH, HEIGHT = 1440, 720
+print("🚀")
 
 class App:
     def __init__(self):

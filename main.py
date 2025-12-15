@@ -41,21 +41,34 @@ class App:
             raise ValueError(f"Unknown screen: {name}")
 
     def run(self):
-        while self.running and self.network.running:
+        # Run until the app requests exit. Keep running even if the network marks itself stopped,
+        # so UI can show errors and user can retry connecting.
+        while self.running:
             dt = self.clock.tick(60) / 1000.0
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                     break
-                self.current_screen.handle_event(event)
+                try:
+                    self.current_screen.handle_event(event)
+                except Exception as e:
+                    print(f"Error handling event: {e}")
 
-            self.current_screen.update(dt)
-            self.current_screen.draw(self.window)
+            try:
+                # allow screens to react to network state but don't exit the whole app on network.stop
+                self.current_screen.update(dt)
+                self.current_screen.draw(self.window)
+            except Exception as e:
+                print(f"Screen error: {e}")
 
             pygame.display.flip()
 
-        self.network.close()
+        # Clean up network and quit
+        try:
+            self.network.close()
+        except Exception:
+            pass
         pygame.quit()
         sys.exit()
 

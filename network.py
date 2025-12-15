@@ -55,9 +55,13 @@ class Network:
             try:
                 data = socket_obj.recv(1024).decode("utf-8")
                 if not data:
+                    # remote closed connection
+                    self.connected = False
                     break
                 print(f"Received: {data}")
             except Exception:
+                # on error, mark disconnected but don't stop the whole app
+                self.connected = False
                 break
 
     def send(self, msg: str):
@@ -67,7 +71,19 @@ class Network:
             elif (not self.is_host) and self.sock:
                 self.sock.sendall(msg.encode())
         except Exception:
-            self.running = False
+            # mark disconnected but avoid shutting down the entire Network controller
+            print(f"[NETWORK] send error, disconnecting")
+            self.connected = False
+            try:
+                if self.sock:
+                    self.sock.close()
+            except Exception:
+                pass
+            try:
+                if self.conn:
+                    self.conn.close()
+            except Exception:
+                pass
 
     def close(self):
         self.running = False

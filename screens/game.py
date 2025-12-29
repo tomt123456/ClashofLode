@@ -1,22 +1,17 @@
 import pygame
 from screens.base import ScreenBase
-from ui import Palette as c
+from ui import Palette as c, draw_grid
 
 
 class GameScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
 
-        # Try to load optional grid image; fall back to programmatic grid if missing
-        try:
-            self.grid_img = pygame.image.load("assets/grid.png").convert_alpha()
-        except Exception:
-            self.grid_img = None
-
         # Grid configuration
         self.grid_origin = (40, 100)
-        self.grid_size = 10  # 10x10
-        self.cell_size = 40
+        self.grid_size = getattr(app, 'selected_grid_size', 10)
+        self.cell_size = 40 if self.grid_size <= 10 else 30
+
 
         # Placement state
         self.grid = [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)]
@@ -102,26 +97,12 @@ class GameScreen(ScreenBase):
         txt = self.app.title_font.render(f"GAME ON! Role: {role_text}", True, c.C8)
         surface.blit(txt, (50, 30))
 
-        # Draw player grid (programmatic) and opponent grid separately
-        player_origin = self.grid_origin
-        enemy_origin = (800, 100)
+        # Draw player grid
+        draw_grid(surface, self.grid_origin, self.grid_size, self.cell_size, self.grid)
 
-        # Draw player cells and placed ships
-        ox, oy = player_origin
-        for y in range(self.grid_size):
-            for x in range(self.grid_size):
-                rect = pygame.Rect(ox + x * self.cell_size, oy + y * self.cell_size, self.cell_size, self.cell_size)
-                pygame.draw.rect(surface, c.C2, rect, 1)
-                if self.grid[y][x] == 1:
-                    inner = rect.inflate(-4, -4)
-                    pygame.draw.rect(surface, c.C6, inner)
-
-        # Draw opponent grid (empty for now) at separate origin so they don't overlap
-        ox2, oy2 = enemy_origin
-        for y in range(self.grid_size):
-            for x in range(self.grid_size):
-                rect = pygame.Rect(ox2 + x * self.cell_size, oy2 + y * self.cell_size, self.cell_size, self.cell_size)
-                pygame.draw.rect(surface, c.C2, rect, 1)
+        # Draw opponent grid
+        enemy_origin = (self.grid_origin[0] + self.grid_size * self.cell_size + 100, self.grid_origin[1])
+        draw_grid(surface, enemy_origin, self.grid_size, self.cell_size)
 
         # Draw hover preview for current ship
         if self.placing:
@@ -146,12 +127,8 @@ class GameScreen(ScreenBase):
                     cells.append((gx, gy))
 
             color = (0, 200, 0, 120) if valid else (200, 0, 0, 120)
-            for (gx, gy) in cells:
-                if 0 <= gx < self.grid_size and 0 <= gy < self.grid_size:
-                    rect = pygame.Rect(ox + gx * self.cell_size, oy + gy * self.cell_size, self.cell_size, self.cell_size)
-                    s = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-                    s.fill(color)
-                    surface.blit(s, rect.topleft)
+            draw_grid(surface, self.grid_origin, self.grid_size, self.cell_size, highlight_cells=cells,
+                      highlight_color=color)
 
         # Small HUD text
         hud = f"Placing: {self.to_place[self.current_index]} ({self.orientation})" if self.placing else "Placement complete"

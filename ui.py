@@ -29,3 +29,26 @@ class Palette:
     C6 = (180,197,228) # Powder Blue
     C7 = (204, 219, 220)  # Alabaster Grey
     C8 = (255,255,255) # White
+
+
+def draw_grid(surface, origin, grid_size, cell_size, grid_data=None, highlight_cells=None,
+              highlight_color=(0, 200, 0, 120)):
+    ox, oy = origin
+    for y in range(grid_size):
+        for x in range(grid_size):
+            rect = pygame.Rect(ox + x * cell_size, oy + y * cell_size, cell_size, cell_size)
+            pygame.draw.rect(surface, Palette.C2, rect, 1)
+
+            # Draw placed ships if grid_data is provided
+            if grid_data and grid_data[y][x] == 1:
+                inner = rect.inflate(-4, -4)
+                pygame.draw.rect(surface, Palette.C6, inner)
+
+    # Draw highlights (e.g., placement preview)
+    if highlight_cells:
+        for (gx, gy) in highlight_cells:
+            if 0 <= gx < grid_size and 0 <= gy < grid_size:
+                rect = pygame.Rect(ox + gx * cell_size, oy + gy * cell_size, cell_size, cell_size)
+                s = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
+                s.fill(highlight_color)
+                surface.blit(s, rect.topleft)

@@ -9,7 +9,7 @@ class HostingScreen(ScreenBase):
 
     def update(self, dt):
         if self.app.network.connected:
-            self.app.set_screen("game")
+            self.app.set_screen("gamesize")
 
     def draw(self, surface):
         surface.fill(c.C2)

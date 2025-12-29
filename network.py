@@ -1,5 +1,6 @@
 import socket
 import threading
+from queue import Queue
 
 PORT = 5678
 
@@ -11,6 +12,7 @@ class Network:
         self.is_host = False
         self.connected = False
         self.running = True
+        self.received_msgs = Queue()
 
     def start_host(self):
         self.is_host = True
@@ -59,6 +61,7 @@ class Network:
                     self.connected = False
                     break
                 print(f"Received: {data}")
+                self.received_msgs.put(data)
             except Exception:
                 # on error, mark disconnected but don't stop the whole app
                 self.connected = False
@@ -84,6 +87,12 @@ class Network:
                     self.conn.close()
             except Exception:
                 pass
+
+    def receive(self):
+        """Returns the oldest received message, or None if no messages are available."""
+        if not self.received_msgs.empty():
+            return self.received_msgs.get()
+        return None
 
     def close(self):
         self.running = False

@@ -27,8 +27,14 @@ class JoiningScreen(ScreenBase):
                 self.user_ip += event.unicode
 
     def update(self, dt):
-        if self.app.network.connected:
-            self.app.set_screen("game")
+        msg = self.app.network.receive()
+        if msg and msg.startswith("START_GAME|"):
+            try:
+                size = int(msg.split("|")[1])
+                self.app.selected_grid_size = size
+                self.app.set_screen("game")
+            except ValueError:
+                pass
 
     def draw(self, surface):
         surface.fill(c.C2)

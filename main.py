@@ -6,6 +6,7 @@ from screens.menu import MenuScreen
 from screens.hosting import HostingScreen
 from screens.joining import JoiningScreen
 from screens.game import GameScreen
+from screens.gamesize import HostSettingsScreen
 
 # --- Constants & Config ---
 WIDTH, HEIGHT = 1440, 720
@@ -37,6 +38,8 @@ class App:
             self.current_screen = JoiningScreen(self)
         elif name == "game":
             self.current_screen = GameScreen(self)
+        elif name == "gamesize":
+            self.current_screen = HostSettingsScreen(self)
         else:
             raise ValueError(f"Unknown screen: {name}")
 

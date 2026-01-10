@@ -4,6 +4,27 @@ Velkosti mapy ✔️
 Pokladanie lodi ✔️ - zlepsit ✔️
 Assety lodi ✔️
 Zaciatok hry ✔️
-Hra
-Koniec
-Random ahh art abo daco
+Hra ✔️
+Koniec ✔️
+hudba
+zvuky
+assety
+settings
+layout:
+    menu
+    settings
+    joining
+    hosting
+    gamesize
+    prep ✔️
+    game ✔️
+    game_end
+visual:
+    menu
+    settings
+    joining
+    hosting
+    gamesize
+    prep
+    game
+    game_end

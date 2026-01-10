@@ -7,10 +7,24 @@ class GameEndScreen(ScreenBase):
         super().__init__(app)
 
     def handle_event(self, event):
-        pass
+        if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+            self.app.set_screen("menu")
 
     def update(self, dt):
         pass
 
     def draw(self, surface):
-        pass
+        surface.fill(Palette.C4)
+        
+        result = getattr(self.app, 'game_result', "GAME OVER")
+        color = (0, 255, 0) if result == "VICTORY" else (255, 0, 0)
+        
+        # Draw result text
+        txt = self.app.title_font.render(result, True, color)
+        rect = txt.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
+        surface.blit(txt, rect)
+        
+        # Draw instruction
+        sub_txt = self.app.font.render("Press any key to return to menu", True, Palette.C8)
+        sub_rect = sub_txt.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 + 50))
+        surface.blit(sub_txt, sub_rect)

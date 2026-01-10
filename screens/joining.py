@@ -1,6 +1,6 @@
 import pygame
 from screens.base import ScreenBase
-from ui import Palette as c
+from components.ui import Palette, Button
 
 
 class JoiningScreen(ScreenBase):
@@ -10,8 +10,12 @@ class JoiningScreen(ScreenBase):
         self.input_rect = pygame.Rect(200, 150, 200, 32)
         self.input_active = False
         self.connection_status = ""
+        self.back_btn = Button(100, 500, 250, 100, "BACK")
 
     def handle_event(self, event):
+        if self.back_btn.is_clicked(event):
+            self.app.set_screen("menu")
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.input_active = self.input_rect.collidepoint(event.pos)
 
@@ -27,6 +31,8 @@ class JoiningScreen(ScreenBase):
                 self.user_ip += event.unicode
 
     def update(self, dt):
+        mouse_pos = pygame.mouse.get_pos()
+        self.back_btn.check_hover(mouse_pos)
         msg = self.app.network.receive()
         if msg and msg.startswith("START_GAME|"):
             try:
@@ -37,16 +43,18 @@ class JoiningScreen(ScreenBase):
                 pass
 
     def draw(self, surface):
-        surface.fill(c.C2)
+        surface.fill(Palette.C2)
 
-        label = self.app.font.render("Enter Host IP:", True, c.C8)
+        label = self.app.font.render("Enter Host IP:", True, Palette.C8)
         surface.blit(label, (200, 120))
 
-        color = c.C5 if self.input_active else c.C4
+        color = Palette.C5 if self.input_active else Palette.C4
         pygame.draw.rect(surface, color, self.input_rect, 2)
 
-        text_surf = self.app.font.render(self.user_ip, True, c.C8)
+        text_surf = self.app.font.render(self.user_ip, True, Palette.C8)
         surface.blit(text_surf, (self.input_rect.x + 5, self.input_rect.y + 5))
+
+        self.back_btn.draw(surface, self.app.font)
 
         if self.connection_status:
             status_surf = self.app.font.render(self.connection_status, True, (255, 200, 200))

@@ -1,6 +1,6 @@
 import pygame
 from screens.base import ScreenBase
-from ui import Button, Palette
+from components.ui import Button, Palette
 
 class HostSettingsScreen(ScreenBase):
     def __init__(self, app):

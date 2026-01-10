@@ -38,6 +38,9 @@ class Network:
         threading.Thread(target=accept_thread, daemon=True).start()
         return local_ip
 
+    def stop_host(self):
+        self.close()
+
     def start_client(self, target_ip: str) -> bool:
         self.is_host = False
         try:

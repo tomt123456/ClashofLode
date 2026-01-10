@@ -1,6 +1,6 @@
 import pygame
 from screens.base import ScreenBase
-from ui import Palette as c, draw_grid
+from components.ui import Palette, draw_grid
 
 
 class GameScreen(ScreenBase):
@@ -90,11 +90,11 @@ class GameScreen(ScreenBase):
             self.placing = False
 
     def draw(self, surface):
-        bg_color = c.C4 if getattr(self.app, 'network', None) and self.app.network.is_host else c.C4
+        bg_color = Palette.C4 if getattr(self.app, 'network', None) and self.app.network.is_host else Palette.C4
         surface.fill(bg_color)
 
         role_text = "HOST" if getattr(self.app, 'network', None) and self.app.network.is_host else "CLIENT"
-        txt = self.app.title_font.render(f"GAME ON! Role: {role_text}", True, c.C8)
+        txt = self.app.title_font.render(f"GAME ON! Role: {role_text}", True, Palette.C8)
         surface.blit(txt, (50, 30))
 
         # Draw player grid
@@ -132,7 +132,7 @@ class GameScreen(ScreenBase):
 
         # Small HUD text
         hud = f"Placing: {self.to_place[self.current_index]} ({self.orientation})" if self.placing else "Placement complete"
-        hud_txt = self.app.font.render(hud, True, c.C8)
+        hud_txt = self.app.font.render(hud, True, Palette.C8)
         surface.blit(hud_txt, (50, 70))
 
         

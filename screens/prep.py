@@ -1,7 +1,7 @@
 import pygame
 import os
 from screens.base import ScreenBase
-from components.ui import Palette, draw_grid
+from components.ui import Palette, draw_grid, Button
 from data.ship_data import MAP_CONFIGS
 
 class PrepScreen(ScreenBase):
@@ -44,7 +44,15 @@ class PrepScreen(ScreenBase):
         self.selected_ship_idx = None 
         self.orientation = 'H'
 
+        # Ready state
+        self.is_ready = False
+        self.opponent_ready = False
+        self.ready_btn = Button(self.sidebar_x, 660, 180, 40, "Ready")
+
     def handle_event(self, event):
+        if self.is_ready: # Block placement once ready
+            return
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 self.orientation = 'V' if self.orientation == 'H' else 'H'
@@ -52,6 +60,12 @@ class PrepScreen(ScreenBase):
                 self.app.set_screen("game")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # Check Ready button
+            if not self.available_ships and self.ready_btn.is_clicked(event):
+                self.is_ready = True
+                self.app.network.send("READY")
+                return
+
             # Right-click to rotate
             if event.button == 3:
                 self.orientation = 'V' if self.orientation == 'H' else 'H'
@@ -130,21 +144,34 @@ class PrepScreen(ScreenBase):
         self.ships.append({'x': cx, 'y': cy, 'length': L, 'orient': self.orientation})
         return True
 
+    def update(self, dt):
+        # Check for network messages
+        msg = self.app.network.receive()
+        if msg == "READY":
+            self.opponent_ready = True
+        
+        # If both are ready, start game
+        if self.is_ready and self.opponent_ready:
+            # Optionally pass ships/grid to app before switching
+            self.app.player_ships = self.ships
+            self.app.player_grid = self.grid
+            self.app.set_screen("game")
+
     def draw(self, surface):
         surface.fill(Palette.C4)
         
-            # Title
+        # Title
         txt = self.app.title_font.render("Ship Selection", True, Palette.C8)
         surface.blit(txt, (50, 30))
 
-            # 1. Draw the grid lines first
+        # 1. Draw the grid lines first
         draw_grid(surface, self.grid_origin, self.grid_size, self.cell_size)
 
-            # 2. Draw placed ship assets
+        # 2. Draw placed ship assets
         for s in self.ships:
             self.draw_ship(surface, s['x'], s['y'], s['length'], s['orient'], is_preview=False)
 
-            # 3. Draw Sidebar with Column Logic
+        # 3. Draw Sidebar with Column Logic
         self.ship_menu_rects = {}
         sidebar_txt = self.app.font.render("Available Ships:", True, Palette.C8)
         surface.blit(sidebar_txt, (self.sidebar_x, 100))
@@ -163,7 +190,7 @@ class PrepScreen(ScreenBase):
         for i, length in enumerate(self.available_ships):
             if self.selected_ship_idx == i: continue 
             
-                # Check if we need to wrap to the next column
+            # Check if we need to wrap to the next column
             if current_y + self.cell_size > max_y:
                 current_y = start_y
                 current_x += col_offset
@@ -171,21 +198,26 @@ class PrepScreen(ScreenBase):
             rect = pygame.Rect(current_x, current_y, length * self.cell_size, self.cell_size)
             self.ship_menu_rects[i] = rect
             
-                # Draw ship in menu
+            # Draw ship in menu
             if length in self.ship_images:
-                    # Scale for menu display if necessary, but here we use loaded assets
-                    # Note: assets are scaled to current self.cell_size in __init__
                 img = self.ship_images[length]
                 surface.blit(img, rect.topleft)
-                
-                # Advance Y for next ship
+            
+            # Advance Y for next ship
             current_y += self.cell_size + 20
 
-            # Draw selected ship following mouse
+        # Draw Ready Button
+        if not self.available_ships:
+            self.ready_btn.check_hover(pygame.mouse.get_pos())
+            if self.is_ready:
+                self.ready_btn.text = "Waiting..."
+            self.ready_btn.draw(surface, self.app.font)
+
+        # Draw selected ship following mouse
         if self.selected_ship_idx is not None:
             mx, my = pygame.mouse.get_pos()
             length = self.available_ships[self.selected_ship_idx]
-                # Center the ship on mouse
+            # Center the ship on mouse
             draw_pos = (mx - self.cell_size // 2, my - self.cell_size // 2)
             
             img = self.ship_images[length].copy()
@@ -200,7 +232,7 @@ class PrepScreen(ScreenBase):
 
     def draw_ship(self, surface, gx, gy, length, orient, is_preview=False):
         if length not in self.ship_images:
-                # Fallback debug square if image failed to load
+            # Fallback debug square if image failed to load
             px = self.grid_origin[0] + gx * self.cell_size
             py = self.grid_origin[1] + gy * self.cell_size
             pygame.draw.rect(surface, (255, 0, 0), (px, py, self.cell_size, self.cell_size), 2)
@@ -208,12 +240,12 @@ class PrepScreen(ScreenBase):
             
         img = self.ship_images[length].copy()
         
-            # Calculate pixel position BEFORE rotation
+        # Calculate pixel position BEFORE rotation
         px = self.grid_origin[0] + gx * self.cell_size
         py = self.grid_origin[1] + gy * self.cell_size
 
         if orient == 'V':
-                # Rotate -90 degrees (clockwise)
+            # Rotate -90 degrees (clockwise)
             img = pygame.transform.rotate(img, -90)
         
         if is_preview:

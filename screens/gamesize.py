@@ -25,7 +25,7 @@ class HostSettingsScreen(ScreenBase):
                     # Notify Client
                     self.app.network.send(f"START_GAME|{self.selected_size}")
                     self.app.selected_grid_size = self.selected_size
-                    self.app.set_screen("game")
+                    self.app.set_screen("prep")
 
     def draw(self, surface):
         surface.fill(Palette.C3)

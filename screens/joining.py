@@ -38,7 +38,7 @@ class JoiningScreen(ScreenBase):
             try:
                 size = int(msg.split("|")[1])
                 self.app.selected_grid_size = size
-                self.app.set_screen("game")
+                self.app.set_screen("prep")
             except ValueError:
                 pass
 

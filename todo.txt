@@ -2,7 +2,7 @@ Menu ✔️
 Hosting/joining ✔️
 Velkosti mapy ✔️
 Pokladanie lodi ✔️ - zlepsit
-Assety lodi
+Assety lodi ✔️
 Zaciatok hry
 Hra
 Koniec

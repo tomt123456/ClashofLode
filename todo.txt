@@ -1,7 +1,7 @@
 Menu ✔️
 Hosting/joining ✔️
 Velkosti mapy ✔️
-Pokladanie lodi ✔️ - zlepsit
+Pokladanie lodi ✔️ - zlepsit ✔️
 Assety lodi ✔️
 Zaciatok hry
 Hra

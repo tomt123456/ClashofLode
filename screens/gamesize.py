@@ -6,9 +6,10 @@ class HostSettingsScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
         self.buttons = [
-            Button(200, 200, 250, 50, "Small (8x8)"),
-            Button(200, 270, 250, 50, "Medium (10x10)"),
-            Button(200, 340, 250, 50, "Large (12x12)"),
+            Button(200, 150, 250, 50, "Small (8x8)"),
+            Button(200, 220, 250, 50, "Medium (10x10)"),
+            Button(200, 290, 250, 50, "Large (12x12)"),
+            Button(200, 360, 250, 50, "Massive (15x15)"),
             Button(200, 450, 250, 50, "Start Game")
         ]
         self.selected_size = 10
@@ -21,6 +22,7 @@ class HostSettingsScreen(ScreenBase):
                 if "Small" in btn.text: self.selected_size = 8
                 elif "Medium" in btn.text: self.selected_size = 10
                 elif "Large" in btn.text: self.selected_size = 12
+                elif "Massive" in btn.text: self.selected_size = 15
                 elif "Start" in btn.text:
                     # Notify Client
                     self.app.network.send(f"START_GAME|{self.selected_size}")

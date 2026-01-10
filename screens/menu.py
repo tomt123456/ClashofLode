@@ -6,9 +6,12 @@ from components.ui import Button, Palette
 class MenuScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
-        self.btn_host = Button(100, 200, 250, 100, "HOST")
-        self.btn_join = Button(100, 350, 250, 100, "JOIN")
-        self.quit_btn = Button(100, 500, 250, 100, "QUIT")
+        self.img_host = pygame.image.load("assets/host.png")
+        self.img_join = pygame.image.load("assets/join.png")
+        self.btn_host = Button(self.app.WIDTH // 2 - 250 - 250 // 2, 420, 250, 80, "HOST")
+        self.btn_join = Button(self.app.WIDTH // 2 + 250 - 250 // 2, 420, 250, 80, "JOIN")
+        self.btn_settings = Button(self.app.WIDTH // 2 - 250 // 2,  510, 250, 80, "SETTINGS")
+        self.quit_btn = Button(self.app.WIDTH // 2 - 250 // 2, 600, 250, 80, "QUIT")
 
     def handle_event(self, event):
         if self.btn_host.is_clicked(event):
@@ -31,6 +34,9 @@ class MenuScreen(ScreenBase):
         surface.fill(Palette.C2)
         title = self.app.title_font.render("Select Mode", True, Palette.C8)
         surface.blit(title, (self.app.WIDTH // 2 - title.get_width() // 2, 100))
+        surface.blit(self.img_host, (self.app.WIDTH // 3 + 250, 200))
+        surface.blit(self.img_join, (self.app.WIDTH // 3 - 250 + self.app.WIDTH // 3, 200))
         self.btn_host.draw(surface, self.app.font)
         self.btn_join.draw(surface, self.app.font)
+        self.btn_settings.draw(surface, self.app.font)
         self.quit_btn.draw(surface, self.app.font)

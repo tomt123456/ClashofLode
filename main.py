@@ -7,6 +7,9 @@ from screens.hosting import HostingScreen
 from screens.joining import JoiningScreen
 from screens.game import GameScreen
 from screens.gamesize import HostSettingsScreen
+from screens.settings import SettingsScreen
+from screens.prep import PrepScreen
+from screens.game_end import GameEndScreen
 
 # --- Constants & Config ---
 WIDTH, HEIGHT = 1440, 720
@@ -32,14 +35,20 @@ class App:
     def set_screen(self, name: str, **kwargs):
         if name == "menu":
             self.current_screen = MenuScreen(self)
+        elif name == "settings":
+            self.current_screen = SettingsScreen(self)
         elif name == "hosting":
             self.current_screen = HostingScreen(self, host_ip_display=kwargs["host_ip_display"])
         elif name == "joining":
             self.current_screen = JoiningScreen(self)
-        elif name == "game":
-            self.current_screen = GameScreen(self)
+        elif name == "prep":
+            self.current_screen = PrepScreen(self)
         elif name == "gamesize":
             self.current_screen = HostSettingsScreen(self)
+        elif name == "game":
+            self.current_screen = GameScreen(self)
+        elif name == "game_end":
+            self.current_screen = GameEndScreen(self)
         else:
             raise ValueError(f"Unknown screen: {name}")
 

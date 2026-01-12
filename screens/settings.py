@@ -77,7 +77,13 @@ class SettingsScreen(ScreenBase):
             self.app.set_screen("menu")
 
         self.music_slider.handle_event(event)
-        self.sfx_slider.handle_event(event)
+        if self.music_slider.handle_event(event):
+            # Update music volume in real-time
+            pygame.mixer.music.set_volume(self.music_slider.val)
+            
+        if self.sfx_slider.handle_event(event):
+            # If you had a test sound effect, you'd play it here at sfx_slider.val
+            pass
 
         for key, btn in self.bind_buttons.items():
             if btn.is_clicked(event):

@@ -20,8 +20,13 @@ print("🚀")
 class App:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init() # Initialize sound system
+        
         # Load settings once
         self.load_app_settings()
+        
+        # Start background music
+        self.play_bg_music()
         
         self.WIDTH, self.HEIGHT = WIDTH, HEIGHT
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -36,6 +41,15 @@ class App:
 
         self.current_screen = None
         self.set_screen("menu")
+
+    def play_bg_music(self):
+        try:
+            # Replace with your actual music file path
+            pygame.mixer.music.load("assets/music.mp3")
+            pygame.mixer.music.set_volume(self.settings.get("music_vol", 0.5))
+            pygame.mixer.music.play(-1) # -1 means loop forever
+        except pygame.error as e:
+            print(f"Could not load music: {e}")
 
     def load_app_settings(self):
         path = "settings.json"

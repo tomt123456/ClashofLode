@@ -25,7 +25,7 @@ class MenuScreen(ScreenBase):
             self.app.set_screen("hosting", host_ip_display=host_ip)
 
         if self.btn_join.is_clicked(event):
-            self.app.set_screen("joining")
+            self.app.set_screen("prep")
 
         if self.quit_btn.is_clicked(event):
             self.app.running = False

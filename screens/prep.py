@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 from screens.base import ScreenBase
 from components.ui import Palette, draw_grid, Button
 from data.ship_data import MAP_CONFIGS
@@ -50,6 +51,7 @@ class PrepScreen(ScreenBase):
         self.is_ready = False
         self.opponent_ready = False
         self.ready_btn = Button(self.sidebar_x, 660, 180, 40, "Ready")
+        self.random_btn = Button(self.sidebar_x, 600, 180, 40, "Randomize")
 
     def handle_event(self, event):
         if self.is_ready: # Block placement once ready
@@ -62,13 +64,18 @@ class PrepScreen(ScreenBase):
                 self.app.set_screen("game")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Check Ready button
+            # 1. Check Randomize button FIRST
+            if self.random_btn.is_clicked(event):
+                self.randomize_ships()
+                return # Stop processing this click immediately
+
+            # 2. Check Ready button
             if not self.available_ships and self.ready_btn.is_clicked(event):
                 self.is_ready = True
                 self.app.network.send("READY")
                 return
 
-            # Right-click to rotate
+            # 3. Right-click to rotate
             if event.button == 3:
                 self.orientation = 'V' if self.orientation == 'H' else 'H'
                 return
@@ -130,11 +137,14 @@ class PrepScreen(ScreenBase):
         cx, cy = self.mouse_to_cell(mouse_pos)
         L = self.available_ships[self.selected_ship_idx]
         
-        dx, dy = (1, 0) if self.orientation == 'H' else (0, 1)
-        
+        return self.place_ship_logic(cx, cy, L, self.orientation)
+
+    def place_ship_logic(self, cx, cy, L, orientation):
+        dx, dy = (1, 0) if orientation == 'H' else (0, 1)
+    
         # Bounds check
-        if self.orientation == 'H' and (cx < 0 or cx + L > self.grid_size or cy < 0 or cy >= self.grid_size): return False
-        if self.orientation == 'V' and (cx < 0 or cx >= self.grid_size or cy < 0 or cy + L > self.grid_size): return False
+        if orientation == 'H' and (cx < 0 or cx + L > self.grid_size or cy < 0 or cy >= self.grid_size): return False
+        if orientation == 'V' and (cx < 0 or cx >= self.grid_size or cy < 0 or cy + L > self.grid_size): return False
 
         # Overlap check
         for i in range(L):
@@ -143,8 +153,41 @@ class PrepScreen(ScreenBase):
         # Place
         for i in range(L):
             self.grid[cy + i*dy][cx + i*dx] = 1
-        self.ships.append({'x': cx, 'y': cy, 'length': L, 'orient': self.orientation})
+        self.ships.append({'x': cx, 'y': cy, 'length': L, 'orient': orientation})
         return True
+
+    def randomize_ships(self):
+        """Clears the grid and places all ships from the current config randomly."""
+        # Reset current state
+        self.grid = [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)]
+        self.ships = []
+        config = MAP_CONFIGS.get(self.grid_size, MAP_CONFIGS[10])
+        
+        # Use the full list from config, not the current (potentially partial) available_ships
+        all_to_place = list(config["ships"])
+        
+        # Sort ships by length (largest first) to make placement easier
+        all_to_place.sort(reverse=True)
+
+        for length in all_to_place:
+            placed = False
+            attempts = 0
+            while not placed and attempts < 500:
+                attempts += 1
+                rx = random.randint(0, self.grid_size - 1)
+                ry = random.randint(0, self.grid_size - 1)
+                rorient = random.choice(['H', 'V'])
+                if self.place_ship_logic(rx, ry, length, rorient):
+                    placed = True
+                
+                if not placed:
+                    # Retry the whole board if we hit a dead end
+                    self.randomize_ships()
+                    return
+
+            # CRITICAL: Mark all ships as used so they disappear from the sidebar
+            self.available_ships = []
+            self.selected_ship_idx = None
 
     def update(self, dt):
         # Check for network messages
@@ -208,6 +251,11 @@ class PrepScreen(ScreenBase):
             
             # Advance Y for next ship
             current_y += self.cell_size + 20
+
+        # Draw Randomize Button - Now stays visible until Ready is clicked
+        if not self.is_ready:
+            self.random_btn.check_hover(pygame.mouse.get_pos())
+            self.random_btn.draw(surface, self.app.font)
 
         # Draw Ready Button
         if not self.available_ships:

@@ -10,6 +10,8 @@ from screens.gamesize import HostSettingsScreen
 from screens.settings import SettingsScreen
 from screens.prep import PrepScreen
 from screens.game_end import GameEndScreen
+import os
+import json
 
 # --- Constants & Config ---
 WIDTH, HEIGHT = 1440, 720
@@ -18,6 +20,9 @@ print("🚀")
 class App:
     def __init__(self):
         pygame.init()
+        # Load settings once
+        self.load_app_settings()
+        
         self.WIDTH, self.HEIGHT = WIDTH, HEIGHT
         self.window = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Network Game")
@@ -31,6 +36,21 @@ class App:
 
         self.current_screen = None
         self.set_screen("menu")
+
+    def load_app_settings(self):
+        path = "settings.json"
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                self.settings = json.load(f)
+        else:
+            self.settings = {
+                "music_vol": 0.5, "sfx_vol": 0.5,
+                "binds": {
+                    "rotate": ["R", "Mouse 3"], 
+                    "place": ["SPACE", "Mouse 1"],
+                    "fire": ["RETURN", "Mouse 1"]
+                }
+            }
 
     def set_screen(self, name: str, **kwargs):
         if name == "menu":

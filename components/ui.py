@@ -20,6 +20,37 @@ class Button:
     def is_clicked(self, event):
         return self.is_hovered and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
 
+class Slider:
+    def __init__(self, x, y, w, h, val):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.val = val  # 0.0 to 1.0
+        self.dragging = False
+
+    def draw(self, screen, font, label):
+        h = self.rect.h
+        # Background bar
+        pygame.draw.rect(screen, Palette.C3, self.rect, border_radius=h//2)
+        # Progress bar
+        fill_w = int(self.rect.w * self.val)
+        if fill_w > 0:
+            pygame.draw.rect(screen, Palette.C5, (self.rect.x, self.rect.y, fill_w, self.rect.h), border_radius=h//2)
+        
+        # Label and percentage
+        txt = font.render(f"{label}: {int(self.val * 100)}%", True, Palette.C8)
+        screen.blit(txt, (self.rect.x, self.rect.y - 25))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.dragging = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+        if self.dragging and event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN):
+            mouse_x = event.pos[0]
+            relative_x = max(0, min(mouse_x - self.rect.x, self.rect.w))
+            self.val = relative_x / self.rect.w
+            return True
+        return False
+
 class Palette:
     C1 = (0, 0, 0)  # Black
     C2 = (22, 25, 37)  # Shadow Gray

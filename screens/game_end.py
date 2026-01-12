@@ -11,6 +11,7 @@ class GameEndScreen(ScreenBase):
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
             self.app.set_screen("menu")
+            self.app.network.stop_host()
 
     def update(self, dt):
         pass

@@ -5,7 +5,7 @@ from components.ui import Palette
 class GameEndScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
-        self.img_background = pygame.image.load("assets/background2.png")
+        self.img_background = pygame.image.load("assets/background1.png")
         self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
 
     def handle_event(self, event):

@@ -6,10 +6,10 @@ Assety lodi ✔️
 Zaciatok hry ✔️
 Hra ✔️
 Koniec ✔️
-hudba
-zvuky
+hudba ✔️
+zvuky ✔️
 assety ✔️
-settings
+settings ✔️
 layout:
     menu ✔️
     settings

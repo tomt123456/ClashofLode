@@ -6,6 +6,8 @@ from components.ui import Palette, draw_grid
 class GameScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
+        self.img_background = pygame.image.load("assets/background2.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
 
         # Grid configuration
         self.grid_origin = (40, 100)
@@ -116,6 +118,7 @@ class GameScreen(ScreenBase):
     def draw(self, surface):
         bg_color = Palette.C4
         surface.fill(bg_color)
+        surface.blit(self.img_background, (0, 0))
 
         role_text = "HOST" if getattr(self.app, 'network', None) and self.app.network.is_host else "CLIENT"
         turn_text = "YOUR TURN" if self.my_turn else "OPPONENT'S TURN"

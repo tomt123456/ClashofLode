@@ -3,18 +3,13 @@ import pygame
 from screens.base import ScreenBase
 from components.ui import Palette, Button
 
-def load_image(filename, size=None):
-    img = pygame.image.load(str(filename))
-    img = img.convert_alpha() if img.get_alpha() else img.convert()
-    if size:
-        img = pygame.transform.smoothscale(img, size)
-    return img
 
 class HostingScreen(ScreenBase):
     def __init__(self, app, host_ip_display: str):
         super().__init__(app)
         self.host_ip_display = host_ip_display
-        self.img_back = load_image('assets/background1.png', (app.WIDTH, app.HEIGHT))
+        self.img_background = pygame.image.load("assets/background1.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
         self.back_btn = Button(100, 500, 250, 100, "BACK")
 
     def handle_event(self, event):
@@ -31,7 +26,7 @@ class HostingScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C2)
-        surface.blit(self.img_back, (0, 0))
+        surface.blit(self.img_background, (0, 0))
 
         msg1 = self.app.font.render("Waiting for player...", True, Palette.C8)
         msg2 = self.app.font.render(f"Your IP: {self.host_ip_display}", True, Palette.C8)

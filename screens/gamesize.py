@@ -13,6 +13,8 @@ class HostSettingsScreen(ScreenBase):
             Button(200, 450, 250, 50, "Start Game")
         ]
         self.selected_size = 10
+        self.img_background = pygame.image.load("assets/background2.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
 
     def handle_event(self, event):
         pos = pygame.mouse.get_pos()
@@ -31,6 +33,7 @@ class HostSettingsScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C3)
+        surface.blit(self.img_background, (0, 0))
         title = self.app.title_font.render(f"Host Settings - Grid: {self.selected_size}x{self.selected_size}", True, Palette.C8)
         surface.blit(title, (100, 100))
         for btn in self.buttons:

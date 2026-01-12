@@ -5,6 +5,8 @@ from components.ui import Palette
 class GameEndScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
+        self.img_background = pygame.image.load("assets/background2.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
@@ -15,6 +17,7 @@ class GameEndScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C4)
+        surface.blit(self.img_background, (0, 0))
         
         result = getattr(self.app, 'game_result', "GAME OVER")
         color = (0, 255, 0) if result == "VICTORY" else (255, 0, 0)

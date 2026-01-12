@@ -5,20 +5,15 @@ from components.ui import Button, Palette
 
 
 
-def load_image(filename, size=None):
-    img = pygame.image.load(str(filename))
-    img = img.convert_alpha() if img.get_alpha() else img.convert()
-    if size:
-        img = pygame.transform.smoothscale(img, size)
-    return img
-
-
 class MenuScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
-        self.img_background = load_image("assets/background1.png", size=(app.WIDTH, app.HEIGHT))
-        self.img_host = load_image("assets/host.png", size=(400, 400))
-        self.img_join = load_image("assets/join.png", size=(400, 400))
+        self.img_background = pygame.image.load("assets/background1.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
+        self.img_host = pygame.image.load("assets/host.png")
+        self.img_host = pygame.transform.scale(self.img_host, (400, 400))
+        self.img_join = pygame.image.load("assets/join.png")
+        self.img_join = pygame.transform.scale(self.img_join, (400, 400))
         self.btn_host = Button(self.app.WIDTH // 2 - 650, 510, 400, 80, "HOST")
         self.btn_join = Button(self.app.WIDTH // 2 + 500 // 2, 510, 400, 80, "JOIN")
         self.btn_settings = Button(self.app.WIDTH // 2 - 250 // 2,  510, 250, 80, "SETTINGS")

@@ -7,6 +7,8 @@ from data.ship_data import MAP_CONFIGS
 class PrepScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
+        self.img_background = pygame.image.load("assets/background2.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
     
         # Grid configuration
         self.grid_origin = (40, 100)
@@ -159,6 +161,7 @@ class PrepScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C4)
+        surface.blit(self.img_background, (0, 0))
         
         # Title
         txt = self.app.title_font.render("Ship Selection", True, Palette.C8)

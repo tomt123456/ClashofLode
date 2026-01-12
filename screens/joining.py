@@ -2,12 +2,7 @@ import pygame
 from screens.base import ScreenBase
 from components.ui import Palette, Button
 
-def load_image(filename, size=None):
-    img = pygame.image.load(str(filename))
-    img = img.convert_alpha() if img.get_alpha() else img.convert()
-    if size:
-        img = pygame.transform.smoothscale(img, size)
-    return img
+
 
 class JoiningScreen(ScreenBase):
     def __init__(self, app):
@@ -16,7 +11,8 @@ class JoiningScreen(ScreenBase):
         self.input_rect = pygame.Rect(200, 150, 200, 32)
         self.input_active = False
         self.connection_status = ""
-        self.img_back = load_image('assets/background1.png', (app.WIDTH, app.HEIGHT))
+        self.img_background = pygame.image.load("assets/background1.png")
+        self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
         self.back_btn = Button(100, 500, 250, 100, "BACK")
 
     def handle_event(self, event):
@@ -51,7 +47,7 @@ class JoiningScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C2)
-        surface.blit(self.img_back, (0, 0))
+        surface.blit(self.img_background, (0, 0))
 
         label = self.app.font.render("Enter Host IP:", True, Palette.C8)
         surface.blit(label, (200, 120))

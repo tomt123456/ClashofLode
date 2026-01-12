@@ -3,19 +3,11 @@ from pathlib import Path
 from screens.base import ScreenBase
 from components.ui import Button, Palette
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-ASSETS_DIR = BASE_DIR / "assets"
 
-_image_cache = {}
 
 def load_image(filename, size=None):
-    path = ASSETS_DIR / filename
-    if filename in _image_cache:
-        img = _image_cache[filename]
-    else:
-        img = pygame.image.load(str(path))
-        img = img.convert_alpha() if img.get_alpha() else img.convert()
-        _image_cache[filename] = img
+    img = pygame.image.load(str(filename))
+    img = img.convert_alpha() if img.get_alpha() else img.convert()
     if size:
         img = pygame.transform.smoothscale(img, size)
     return img
@@ -24,8 +16,9 @@ def load_image(filename, size=None):
 class MenuScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
-        self.img_host = load_image("host.png", size=(400, 400))
-        self.img_join = load_image("join.png", size=(400, 400))
+        self.img_background = load_image("assets/background1.png", size=(app.WIDTH, app.HEIGHT))
+        self.img_host = load_image("assets/host.png", size=(400, 400))
+        self.img_join = load_image("assets/join.png", size=(400, 400))
         self.btn_host = Button(self.app.WIDTH // 2 - 650, 510, 400, 80, "HOST")
         self.btn_join = Button(self.app.WIDTH // 2 + 500 // 2, 510, 400, 80, "JOIN")
         self.btn_settings = Button(self.app.WIDTH // 2 - 250 // 2,  510, 250, 80, "SETTINGS")
@@ -51,9 +44,9 @@ class MenuScreen(ScreenBase):
 
     def draw(self, surface):
         surface.fill(Palette.C2)
+        surface.blit(self.img_background, (0,0))
         title = self.app.title_font.render("Select Mode", True, Palette.C8)
         surface.blit(title, (self.app.WIDTH // 2 - title.get_width() // 2, 100))
-        # Draw images above the corresponding buttons if available
         if getattr(self, 'img_host', None):
             surface.blit(self.img_host, (self.app.WIDTH // 2 - 650, 150))
         if getattr(self, 'img_join', None):

@@ -30,6 +30,9 @@ class MenuScreen(ScreenBase):
         if self.quit_btn.is_clicked(event):
             self.app.running = False
 
+        if self.btn_settings.is_clicked(event):
+            self.app.set_screen("settings")
+
     def update(self, dt):
         mouse_pos = pygame.mouse.get_pos()
         self.btn_host.check_hover(mouse_pos)

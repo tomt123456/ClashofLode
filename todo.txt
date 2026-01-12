@@ -8,23 +8,23 @@ Hra ✔️
 Koniec ✔️
 hudba
 zvuky
-assety
+assety ✔️
 settings
 layout:
-    menu
+    menu ✔️
     settings
     joining
     hosting
-    gamesize
+    gamesize ✔️
     prep ✔️
     game ✔️
     game_end
 visual:
-    menu
+    menu ✔️
     settings
-    joining
-    hosting
-    gamesize
-    prep
-    game
+    joining ✔️
+    hosting ✔️
+    gamesize ✔️
+    prep ✔️
+    game ✔️
     game_end

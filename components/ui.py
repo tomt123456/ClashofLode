@@ -52,3 +52,41 @@ def draw_grid(surface, origin, grid_size, cell_size, grid_data=None, highlight_c
                 s = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
                 s.fill(highlight_color)
                 surface.blit(s, rect.topleft)
+
+
+def encode_ip(ip: str) -> str:
+    """Converts an IP address string to a Base36 room code."""
+    try:
+        parts = [int(p) for p in ip.split('.')]
+        # Pack the 4 bytes into one integer
+        val = (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3]
+        
+        # Convert to Base36
+        chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+        code = ""
+        while val > 0:
+            val, i = divmod(val, 36)
+            code = chars[i] + code
+        return code or "0"
+    except (ValueError, IndexError):
+        return "invalid"
+
+
+def decode_ip(code: str) -> str:
+    """Converts a Base36 room code back to an IP address string."""
+    try:
+        chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+        val = 0
+        for char in code.lower():
+            val = val * 36 + chars.index(char)
+        
+        # Unpack the integer back into 4 bytes
+        parts = [
+            (val >> 24) & 0xFF,
+            (val >> 16) & 0xFF,
+            (val >> 8) & 0xFF,
+            val & 0xFF
+        ]
+        return ".".join(map(str, parts))
+    except (ValueError, KeyError):
+        return ""

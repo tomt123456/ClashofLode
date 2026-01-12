@@ -1,6 +1,6 @@
 import pygame
 from screens.base import ScreenBase
-from components.ui import Palette, Button
+from components.ui import Palette, Button, decode_ip
 
 
 
@@ -25,7 +25,9 @@ class JoiningScreen(ScreenBase):
         if event.type == pygame.KEYDOWN and self.input_active:
             if event.key == pygame.K_RETURN:
                 self.connection_status = "Connecting..."
-                success = self.app.network.start_client(self.user_ip)
+                # Decode the entered room code back to an IP
+                target_ip = decode_ip(self.user_ip.strip())
+                success = self.app.network.start_client(target_ip)
                 if not success:
                     self.connection_status = "Failed. Try again."
             elif event.key == pygame.K_BACKSPACE:
@@ -49,7 +51,7 @@ class JoiningScreen(ScreenBase):
         surface.fill(Palette.C2)
         surface.blit(self.img_background, (0, 0))
 
-        label = self.app.font.render("Enter Host IP:", True, Palette.C8)
+        label = self.app.font.render("Enter Room Code:", True, Palette.C8)
         surface.blit(label, (200, 120))
 
         color = Palette.C5 if self.input_active else Palette.C4

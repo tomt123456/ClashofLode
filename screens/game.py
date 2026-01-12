@@ -19,14 +19,40 @@ class GameScreen(ScreenBase):
         self.grid = getattr(app, 'player_grid', [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)])
         self.enemy_grid = [[0 for _ in range(self.grid_size)] for _ in range(self.grid_size)]
         self.ships = getattr(app, 'player_ships', [])
-        self.enemy_ships = [] # We'll store known sunken ships here
+        self.enemy_ships = []  # We'll store known sunken ships here
         self.my_turn = self.app.network.is_host
 
+        # Pre-load sounds to avoid lag and volume issues
+        self.sounds = {}
+        for s_name in ["hit", "miss", "sunk"]:
+            try:
+                self.sounds[s_name] = pygame.mixer.Sound(f"assets/{s_name}.wav")
+            except:
+                print(f"Warning: Could not load assets/{s_name}.wav")
+
+    def play_sfx(self, sound_name):
+        if sound_name in self.sounds:
+            sound = self.sounds[sound_name]
+            # Get the current volume from settings
+            vol = self.app.settings.get("sfx_vol", 0.5)
+            sound.set_volume(vol)
+            sound.play()
+
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and self.my_turn:
-            mx, my = event.pos
+        # Helper to check if an event matches the firing binds
+        def check_bind(action):
+            binds = self.app.settings["binds"][action]
+            if event.type == pygame.KEYDOWN:
+                return pygame.key.name(event.key).upper() in binds
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return f"Mouse {event.button}" in binds
+            return False
+
+        # Use the custom 'fire' binds (checks both Primary and Secondary)
+        if self.my_turn and check_bind("fire"):
+            mx, my = pygame.mouse.get_pos()
             ex, ey = self.enemy_origin
-            
+
             # Check if click is inside enemy grid
             cx = (mx - ex) // self.cell_size
             cy = (my - ey) // self.cell_size
@@ -45,23 +71,26 @@ class GameScreen(ScreenBase):
             # Opponent shot at us
             _, coords = msg.split(":")
             cx, cy = map(int, coords.split(","))
-            
-            if self.grid[cy][cx] == 1 or self.grid[cy][cx] == 2: # Hit or already Hit
-                self.grid[cy][cx] = 2 
-                
+
+            if self.grid[cy][cx] == 1 or self.grid[cy][cx] == 2:  # Hit or already Hit
+                self.grid[cy][cx] = 2
+
                 # Check if the ship this cell belongs to is sunk
                 sunk_data = self._check_if_sunk(cx, cy, self.grid, self.ships)
                 if sunk_data:
+                    self.play_sfx("sunk")
                     self.app.network.send(f"RES:{cx},{cy},SUNK,{sunk_data}")
                     # Check if all our ships are sunk
                     if self._all_ships_sunk(self.grid, self.ships):
                         self.app.game_result = "DEFEAT"
                         self.app.set_screen("game_end")
                 else:
+                    self.play_sfx("hit")
                     self.app.network.send(f"RES:{cx},{cy},HIT")
                 self.my_turn = False
-            else: # Miss
-                self.grid[cy][cx] = 3 # Mark as miss
+            else:  # Miss
+                self.play_sfx("miss")
+                self.grid[cy][cx] = 3  # Mark as miss
                 self.app.network.send(f"RES:{cx},{cy},MISS")
                 self.my_turn = True
 
@@ -70,16 +99,18 @@ class GameScreen(ScreenBase):
             _, data = msg.split(":")
             parts = data.split(",")
             cx, cy, result = int(parts[0]), int(parts[1]), parts[2]
-            
+
             if result == "HIT":
+                self.play_sfx("hit")
                 self.enemy_grid[cy][cx] = 2
                 self.my_turn = True
             elif result == "SUNK":
+                self.play_sfx("sunk")
                 self.enemy_grid[cy][cx] = 2
                 # parts[3:] contains x, y, len, orient
                 ship_info = {'x': int(parts[3]), 'y': int(parts[4]), 'length': int(parts[5]), 'orient': parts[6]}
                 self.enemy_ships.append(ship_info)
-                
+
                 # Check if we won
                 config = self.app.selected_grid_size if hasattr(self.app, 'selected_grid_size') else 10
                 from data.ship_data import MAP_CONFIGS
@@ -87,9 +118,10 @@ class GameScreen(ScreenBase):
                 if len(self.enemy_ships) >= total_ships:
                     self.app.game_result = "VICTORY"
                     self.app.set_screen("game_end")
-                
+
                 self.my_turn = True
             else:
+                self.play_sfx("miss")
                 self.enemy_grid[cy][cx] = 3
                 self.my_turn = False
 
@@ -109,7 +141,7 @@ class GameScreen(ScreenBase):
                 scx = s['x'] + (i if s['orient'] == 'H' else 0)
                 scy = s['y'] + (i if s['orient'] == 'V' else 0)
                 ship_cells.append((scx, scy))
-            
+
             if (cx, cy) in ship_cells:
                 if all(grid[y][x] == 2 for x, y in ship_cells):
                     return f"{s['x']},{s['y']},{s['length']},{s['orient']}"
@@ -143,12 +175,12 @@ class GameScreen(ScreenBase):
 
         # Draw Hover effect and Status overlays
         mx, my = pygame.mouse.get_pos()
-        
+
         # Enemy Grid Hover
         ex, ey = self.enemy_origin
         ecx = (mx - ex) // self.cell_size
         ecy = (my - ey) // self.cell_size
-        
+
         if self.my_turn and 0 <= ecx < self.grid_size and 0 <= ecy < self.grid_size:
             if self.enemy_grid[ecy][ecx] == 0:
                 hover_rect = (ex + ecx * self.cell_size, ey + ecy * self.cell_size, self.cell_size, self.cell_size)
@@ -168,22 +200,22 @@ class GameScreen(ScreenBase):
         py = oy + ship['y'] * self.cell_size
         w = (ship['length'] if ship['orient'] == 'H' else 1) * self.cell_size
         h = (ship['length'] if ship['orient'] == 'V' else 1) * self.cell_size
-        
+
         overlay = pygame.Surface((w, h), pygame.SRCALPHA)
-        overlay.fill((255, 0, 0, 60)) # Semi-transparent red
+        overlay.fill((255, 0, 0, 60))  # Semi-transparent red
         surface.blit(overlay, (px, py))
         pygame.draw.rect(surface, (150, 0, 0), (px, py, w, h), 3)
 
     def _draw_cell_status(self, surface, origin, gx, gy, status):
-        if status < 2: return # 0=empty, 1=ship
-        
+        if status < 2: return  # 0=empty, 1=ship
+
         ox, oy = origin
         px = ox + gx * self.cell_size
         py = oy + gy * self.cell_size
         center = (px + self.cell_size // 2, py + self.cell_size // 2)
-        
-        if status == 2: # HIT
+
+        if status == 2:  # HIT
             pygame.draw.line(surface, (255, 0, 0), (px, py), (px + self.cell_size, py + self.cell_size), 3)
             pygame.draw.line(surface, (255, 0, 0), (px + self.cell_size, py), (px, py + self.cell_size), 3)
-        elif status == 3: # MISS
+        elif status == 3:  # MISS
             pygame.draw.circle(surface, (200, 200, 200), center, self.cell_size // 4)

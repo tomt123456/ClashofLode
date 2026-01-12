@@ -57,74 +57,75 @@ class PrepScreen(ScreenBase):
         if self.is_ready: # Block placement once ready
             return
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
-                self.orientation = 'V' if self.orientation == 'H' else 'H'
-            if event.key == pygame.K_SPACE and not self.available_ships:
-                self.app.set_screen("game")
+        # Helper to check if an event matches a set of binds
+        def check_bind(action):
+            binds = self.app.settings["binds"][action]
+            if event.type == pygame.KEYDOWN:
+                return pygame.key.name(event.key).upper() in binds
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return f"Mouse {event.button}" in binds
+            return False
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # 1. Check Randomize button FIRST
+        # 1. Check Rotation binds
+        if check_bind("rotate"):
+            self.orientation = 'V' if self.orientation == 'H' else 'H'
+            return
+
+        # 2. Check UI Buttons (Randomize/Ready) - these always use Mouse 1
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.random_btn.is_clicked(event):
                 self.randomize_ships()
-                return # Stop processing this click immediately
+                return 
 
-            # 2. Check Ready button
             if not self.available_ships and self.ready_btn.is_clicked(event):
                 self.is_ready = True
                 self.app.network.send("READY")
                 return
 
-            # 3. Right-click to rotate
-            if event.button == 3:
-                self.orientation = 'V' if self.orientation == 'H' else 'H'
-                return
-
-            # Left-click logic
-            if event.button == 1:
-                # Check if clicking on sidebar ships
-                clicked_new_ship = False
-                for idx, rect in self.ship_menu_rects.items():
-                    if rect.collidepoint(event.pos):
-                        self.selected_ship_idx = idx
-                        clicked_new_ship = True
-                        break
+        # 3. Placement Action (Pickup / Place / Sidebar Select)
+        if check_bind("place"):
+            # We need the current mouse position for these checks
+            m_pos = pygame.mouse.get_pos()
             
-                # If not sidebar, check if clicking a placed ship to move it
-                if not clicked_new_ship:
-                    cx, cy = self.mouse_to_cell(event.pos)
-                    ship_to_pick = None
-                    for i, s in enumerate(self.ships):
-                        # Check if cell (cx, cy) is part of this ship
-                        for j in range(s['length']):
-                            sx = s['x'] + (j if s['orient'] == 'H' else 0)
-                            sy = s['y'] + (j if s['orient'] == 'V' else 0)
-                            if sx == cx and sy == cy:
-                                ship_to_pick = i
-                                break
-                        if ship_to_pick is not None: break
+            # A. Check if clicking on sidebar ships
+            clicked_new_ship = False
+            for idx, rect in self.ship_menu_rects.items():
+                if rect.collidepoint(m_pos):
+                    self.selected_ship_idx = idx
+                    clicked_new_ship = True
+                    break
+    
+            if not clicked_new_ship:
+                cx, cy = self.mouse_to_cell(m_pos)
+                
+                # B. Try picking up a ship from the grid
+                ship_to_pick = None
+                for i, s in enumerate(self.ships):
+                    for j in range(s['length']):
+                        sx = s['x'] + (j if s['orient'] == 'H' else 0)
+                        sy = s['y'] + (j if s['orient'] == 'V' else 0)
+                        if sx == cx and sy == cy:
+                            ship_to_pick = i
+                            break
+                    if ship_to_pick is not None: break
 
-                    if ship_to_pick is not None:
-                        # Pick up the ship: remove from grid and list, make it available for placement
-                        s = self.ships.pop(ship_to_pick)
-                        for j in range(s['length']):
-                            self.grid[s['y'] + (j if s['orient'] == 'V' else 0)][s['x'] + (j if s['orient'] == 'H' else 0)] = 0
-                        
-                        self.available_ships.append(s['length'])
-                        self.selected_ship_idx = len(self.available_ships) - 1
-                        self.orientation = s['orient']
-                    
-                    # If we have a selected ship and didn't just pick one up, try placing it
-                    elif self.selected_ship_idx is not None:
-                        # Check if click is inside grid bounds
-                        cx, cy = self.mouse_to_cell(event.pos)
-                        if 0 <= cx < self.grid_size and 0 <= cy < self.grid_size:
-                            if self.try_place_at(event.pos):
-                                self.available_ships.pop(self.selected_ship_idx)
-                                self.selected_ship_idx = None
-                        else:
-                            # Clicked outside the grid: return ship to sidebar
+                if ship_to_pick is not None:
+                    s = self.ships.pop(ship_to_pick)
+                    for j in range(s['length']):
+                        self.grid[s['y'] + (j if s['orient'] == 'V' else 0)][s['x'] + (j if s['orient'] == 'H' else 0)] = 0
+                    self.available_ships.append(s['length'])
+                    self.selected_ship_idx = len(self.available_ships) - 1
+                    self.orientation = s['orient']
+            
+                # C. Try placing the currently selected ship
+                elif self.selected_ship_idx is not None:
+                    if 0 <= cx < self.grid_size and 0 <= cy < self.grid_size:
+                        if self.try_place_at(m_pos):
+                            self.available_ships.pop(self.selected_ship_idx)
                             self.selected_ship_idx = None
+                    else:
+                        # Clicked outside grid: Put it back
+                        self.selected_ship_idx = None
 
     def mouse_to_cell(self, pos):
         ox, oy = self.grid_origin
@@ -277,7 +278,11 @@ class PrepScreen(ScreenBase):
             img.set_alpha(180)
             surface.blit(img, draw_pos)
 
-        hud = "All ships placed! Press SPACE to start" if not self.available_ships else "Select a ship and place it. 'R' to rotate."
+        place_binds = " or ".join(self.app.settings["binds"]["place"])
+        rotate_binds = " or ".join(self.app.settings["binds"]["rotate"])
+
+        hud = f"Press {place_binds} to select/place. {rotate_binds} to rotate."
+
         hud_txt = self.app.font.render(hud, True, Palette.C8)
         surface.blit(hud_txt, (50, 70))
 

@@ -70,12 +70,10 @@ def draw_grid(surface, origin, grid_size, cell_size, grid_data=None, highlight_c
             rect = pygame.Rect(ox + x * cell_size, oy + y * cell_size, cell_size, cell_size)
             pygame.draw.rect(surface, Palette.C2, rect, 1)
 
-            # Draw placed ships if grid_data is provided
             if grid_data and grid_data[y][x] == 1:
                 inner = rect.inflate(-4, -4)
                 pygame.draw.rect(surface, Palette.C6, inner)
 
-    # Draw highlights (e.g., placement preview)
     if highlight_cells:
         for (gx, gy) in highlight_cells:
             if 0 <= gx < grid_size and 0 <= gy < grid_size:
@@ -86,13 +84,11 @@ def draw_grid(surface, origin, grid_size, cell_size, grid_data=None, highlight_c
 
 
 def encode_ip(ip: str) -> str:
-    """Converts an IP address string to a Base36 room code."""
     try:
         parts = [int(p) for p in ip.split('.')]
         # Pack the 4 bytes into one integer
         val = (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3]
-        
-        # Convert to Base36
+
         chars = "0123456789abcdefghijklmnopqrstuvwxyz"
         code = ""
         while val > 0:
@@ -104,14 +100,12 @@ def encode_ip(ip: str) -> str:
 
 
 def decode_ip(code: str) -> str:
-    """Converts a Base36 room code back to an IP address string."""
     try:
         chars = "0123456789abcdefghijklmnopqrstuvwxyz"
         val = 0
         for char in code.lower():
             val = val * 36 + chars.index(char)
-        
-        # Unpack the integer back into 4 bytes
+
         parts = [
             (val >> 24) & 0xFF,
             (val >> 16) & 0xFF,

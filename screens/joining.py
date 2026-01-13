@@ -26,7 +26,6 @@ class JoiningScreen(ScreenBase):
         if event.type == pygame.KEYDOWN and self.input_active:
             if event.key == pygame.K_RETURN:
                 self.connection_status = "Connecting..."
-                # Decode the entered room code back to an IP
                 target_ip = decode_ip(self.user_ip.strip())
                 success = self.app.network.start_client(target_ip)
                 if not success:

@@ -20,12 +20,10 @@ print("🚀")
 class App:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init() # Initialize sound system
-        
-        # Load settings once
+        pygame.mixer.init()
+
         self.load_app_settings()
-        
-        # Start background music
+
         self.play_bg_music()
         
         self.WIDTH, self.HEIGHT = WIDTH, HEIGHT
@@ -44,7 +42,6 @@ class App:
 
     def play_bg_music(self):
         try:
-            # Replace with your actual music file path
             pygame.mixer.music.load("assets/music.mp3")
             pygame.mixer.music.set_volume(self.settings.get("music_vol", 0.5))
             pygame.mixer.music.play(-1) # -1 means loop forever
@@ -87,8 +84,6 @@ class App:
             raise ValueError(f"Unknown screen: {name}")
 
     def run(self):
-        # Run until the app requests exit. Keep running even if the network marks itself stopped,
-        # so UI can show errors and user can retry connecting.
         while self.running:
             dt = self.clock.tick(60) / 1000.0
 
@@ -102,7 +97,6 @@ class App:
                     print(f"Error handling event: {e}")
 
             try:
-                # allow screens to react to network state but don't exit the whole app on network.stop
                 self.current_screen.update(dt)
                 self.current_screen.draw(self.window)
             except Exception as e:
@@ -110,7 +104,6 @@ class App:
 
             pygame.display.flip()
 
-        # Clean up network and quit
         try:
             self.network.close()
         except Exception:

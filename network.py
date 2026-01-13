@@ -60,13 +60,11 @@ class Network:
             try:
                 data = socket_obj.recv(1024).decode("utf-8")
                 if not data:
-                    # remote closed connection
                     self.connected = False
                     break
                 print(f"Received: {data}")
                 self.received_msgs.put(data)
             except Exception:
-                # on error, mark disconnected but don't stop the whole app
                 self.connected = False
                 break
 
@@ -77,7 +75,6 @@ class Network:
             elif (not self.is_host) and self.sock:
                 self.sock.sendall(msg.encode())
         except Exception:
-            # mark disconnected but avoid shutting down the entire Network controller
             print(f"[NETWORK] send error, disconnecting")
             self.connected = False
             try:
@@ -92,7 +89,6 @@ class Network:
                 pass
 
     def receive(self):
-        """Returns the oldest received message, or None if no messages are available."""
         if not self.received_msgs.empty():
             return self.received_msgs.get()
         return None

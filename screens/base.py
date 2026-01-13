@@ -1,6 +1,6 @@
 class ScreenBase:
     def __init__(self, app):
-        self.app = app  # access to app (fonts, window, network, set_screen)
+        self.app = app
 
     def handle_event(self, event):
         pass

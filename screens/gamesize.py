@@ -26,7 +26,6 @@ class HostSettingsScreen(ScreenBase):
                 elif "Large" in btn.text: self.selected_size = 12
                 elif "Massive" in btn.text: self.selected_size = 15
                 elif "Start" in btn.text:
-                    # Notify Client
                     self.app.network.send(f"START_GAME|{self.selected_size}")
                     self.app.selected_grid_size = self.selected_size
                     self.app.set_screen("prep")

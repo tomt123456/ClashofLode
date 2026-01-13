@@ -8,12 +8,12 @@ class JoiningScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
         self.user_ip = ""
-        self.input_rect = pygame.Rect(200, 150, 200, 32)
+        self.input_rect = pygame.Rect(app.WIDTH // 2 - 400//2, 150, 400, 64)
         self.input_active = False
         self.connection_status = ""
         self.img_background = pygame.image.load("assets/background1.png")
         self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
-        self.back_btn = Button(100, 500, 250, 100, "BACK")
+        self.back_btn = Button(app.WIDTH // 2 - 125, 500, 250, 100, "BACK")
 
     def handle_event(self, event):
         if self.back_btn.is_clicked(event):
@@ -52,7 +52,7 @@ class JoiningScreen(ScreenBase):
         surface.blit(self.img_background, (0, 0))
 
         label = self.app.font.render("Enter Room Code:", True, Palette.C8)
-        surface.blit(label, (200, 120))
+        surface.blit(label, (520, 120))
 
         color = Palette.C5 if self.input_active else Palette.C4
         pygame.draw.rect(surface, color, self.input_rect, 2)

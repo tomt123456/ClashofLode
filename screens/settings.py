@@ -12,10 +12,11 @@ class SettingsScreen(ScreenBase):
         
         self.img_background = pygame.image.load("assets/background1.png")
         self.img_background = pygame.transform.scale(self.img_background, (app.WIDTH, app.HEIGHT))
+        self.title_font = pygame.font.SysFont(None, 120)
         
         # Audio Sliders
-        self.music_slider = Slider(200, 150, 300, 20, self.settings.get("music_vol", 0.5))
-        self.sfx_slider = Slider(200, 230, 300, 20, self.settings.get("sfx_vol", 0.5))
+        self.music_slider = Slider(200, 200, 300, 20, self.settings.get("music_vol", 0.5))
+        self.sfx_slider = Slider(200, 280, 300, 20, self.settings.get("sfx_vol", 0.5))
         
         # Keybinds - now with Primary and Secondary
         self.rebinding = None # (action, index) e.g., ("rotate", 0)
@@ -24,11 +25,11 @@ class SettingsScreen(ScreenBase):
         actions = ["rotate", "place", "fire"]
         for i, action in enumerate(actions):
             # Primary bind button
-            self.bind_buttons[(action, 0)] = Button(850, 150 + i*70, 180, 40, str(self.settings["binds"][action][0]))
+            self.bind_buttons[(action, 0)] = Button(850, 200 + i*70, 180, 40, str(self.settings["binds"][action][0]))
             # Secondary bind button
-            self.bind_buttons[(action, 1)] = Button(1050, 150 + i*70, 180, 40, str(self.settings["binds"][action][1]))
+            self.bind_buttons[(action, 1)] = Button(1050, 200 + i*70, 180, 40, str(self.settings["binds"][action][1]))
         
-        self.back_btn = Button(100, 580, 250, 80, "BACK & SAVE")
+        self.back_btn = Button(app.WIDTH // 2 - 125, 580, 250, 80, "BACK & SAVE")
 
     def load_settings(self):
         default = {
@@ -100,6 +101,11 @@ class SettingsScreen(ScreenBase):
         # ... existing background draw ...
         surface.fill(Palette.C2)
         surface.blit(self.img_background, (0, 0))
+
+        au_lbl = self.app.title_font.render("Audio", True, Palette.C8)
+        surface.blit(au_lbl, (300, 110))
+        co_lbl = self.app.title_font.render("Controls", True, Palette.C8)
+        surface.blit(co_lbl, (950, 110))
         
         self.music_slider.draw(surface, self.app.font, "Music Volume")
         self.sfx_slider.draw(surface, self.app.font, "SFX Volume")
@@ -107,13 +113,13 @@ class SettingsScreen(ScreenBase):
         # Header labels
         p_lbl = self.app.font.render("Primary", True, Palette.C6)
         s_lbl = self.app.font.render("Secondary", True, Palette.C6)
-        surface.blit(p_lbl, (850, 110))
-        surface.blit(s_lbl, (1050, 110))
+        surface.blit(p_lbl, (850, 160))
+        surface.blit(s_lbl, (1050, 160))
 
         actions = ["rotate", "place", "fire"]
         for i, action in enumerate(actions):
             lbl = self.app.font.render(f"{action.capitalize()}:", True, Palette.C8)
-            surface.blit(lbl, (700, 150 + i*70 + 10))
+            surface.blit(lbl, (750, 200 + i*70 + 10))
             self.bind_buttons[(action, 0)].draw(surface, self.app.font)
             self.bind_buttons[(action, 1)].draw(surface, self.app.font)
 

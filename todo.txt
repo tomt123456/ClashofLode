@@ -13,12 +13,12 @@ settings ✔️
 layout:
     menu ✔️
     settings ✔️
-    joining
-    hosting
+    joining ✔️
+    hosting ✔️
     gamesize ✔️
     prep ✔️
     game ✔️
-    game_end
+    game_end ✔️
 visual:
     menu ✔️
     settings ✔️
@@ -27,4 +27,4 @@ visual:
     gamesize ✔️
     prep ✔️
     game ✔️
-    game_end
+    game_end ✔️

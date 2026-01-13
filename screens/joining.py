@@ -8,7 +8,7 @@ class JoiningScreen(ScreenBase):
     def __init__(self, app):
         super().__init__(app)
         self.user_ip = ""
-        self.input_rect = pygame.Rect(app.WIDTH // 2 - 400//2, 160, 400, 64)
+        self.input_rect = pygame.Rect(app.WIDTH // 2 - 400//2, 160, 400, 45)
         self.input_active = False
         self.connection_status = ""
         self.img_background = pygame.image.load("assets/background1.png")
@@ -57,11 +57,11 @@ class JoiningScreen(ScreenBase):
         color = Palette.C5 if self.input_active else Palette.C4
         pygame.draw.rect(surface, color, self.input_rect, 2)
 
-        text_surf = self.app.font.render(self.user_ip, True, Palette.C8)
+        text_surf = self.app.title_font.render(self.user_ip, True, Palette.C8)
         surface.blit(text_surf, (self.input_rect.x + 5, self.input_rect.y + 5))
 
         self.back_btn.draw(surface, self.app.font)
 
         if self.connection_status:
-            status_surf = self.app.font.render(self.connection_status, True, (255, 200, 200))
-            surface.blit(status_surf, (200, 200))
+            status_surf = self.app.font.render(self.connection_status, True, (252, 44, 3))
+            surface.blit(status_surf, (520, 220))

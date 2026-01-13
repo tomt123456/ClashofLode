@@ -12,7 +12,7 @@ assety ✔️
 settings ✔️
 layout:
     menu ✔️
-    settings
+    settings ✔️
     joining
     hosting
     gamesize ✔️
@@ -21,7 +21,7 @@ layout:
     game_end
 visual:
     menu ✔️
-    settings
+    settings ✔️
     joining ✔️
     hosting ✔️
     gamesize ✔️
